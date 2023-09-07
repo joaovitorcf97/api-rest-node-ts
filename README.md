@@ -1,7 +1,6 @@
 <h1>
-  Boilerplate Typescript / NodeJs
-</h1>
-<p>Desenvolvido para ajudar outros devs na agilidade de seu código Typescript / NodeJs.</p>
+  API Rest - Typescript / NodeJs
+
 <p>É muito simples de utilizar, basta clonar o projeto e instalar as dependências:</p>
 
 ```javascript
