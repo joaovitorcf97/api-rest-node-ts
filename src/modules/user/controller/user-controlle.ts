@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
+import { StatusErrorsEnum } from '../../../enum/status.enum';
 import { userService } from '../service/user-service';
 import { ZodEnum } from '../../../enum/zod.enum';
 import { MessageEnum } from '../../../enum/message.enum';
@@ -20,7 +21,7 @@ class UserController {
       zUserSchema.parse({ name, email, password });
     } catch (error) {
       return response.status(400).json({
-        message: ZodEnum.INVALID_DATA,
+        message: StatusErrorsEnum.E400,
         error: error,
       });
     }
@@ -47,7 +48,7 @@ class UserController {
       ZUserSchema.parse(paramsID);
     } catch (error: any) {
       return response.status(400).json({
-        message: ZodEnum.INVALID_DATA,
+        message: StatusErrorsEnum.E400,
         error: error,
       });
     }
@@ -77,7 +78,7 @@ class UserController {
       zUserSchema.parse({ paramsID, name });
     } catch (error) {
       return response.status(400).json({
-        message: ZodEnum.INVALID_DATA,
+        message: StatusErrorsEnum.E400,
         error: error,
       });
     }
@@ -104,7 +105,7 @@ class UserController {
       ZUserSchema.parse(paramsID);
     } catch (error: any) {
       return response.status(400).json({
-        message: ZodEnum.INVALID_DATA,
+        message: StatusErrorsEnum.E400,
         error: error,
       });
     }
