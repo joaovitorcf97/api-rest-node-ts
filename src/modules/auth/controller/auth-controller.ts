@@ -41,7 +41,40 @@ class AuthController {
     }
   }
 
-  public async token(request: Request, response: Response) {}
+  public async token(request: Request, response: Response) {
+    const token = request.headers['authorization'] || '';
+
+    try {
+      const ZAuthSchema = z
+        .string()
+        .min(25, { message: `${ZodEnum.REQUIRED}` });
+
+      ZAuthSchema.parse(token);
+    } catch (error: any) {
+      return response.status(400).json({
+        message: StatusErrorsEnum.E400,
+        error: error.errors,
+      });
+    }
+
+    try {
+      return response.json({
+        data: await authService.token(token),
+      });
+    } catch (error: any) {
+      switch (error.message) {
+        case StatusErrorsEnum.E401:
+          return response.status(401).json({
+            message: error.message,
+          });
+
+        case StatusErrorsEnum.E404:
+          return response.status(404).json({
+            message: error.message,
+          });
+      }
+    }
+  }
 }
 
 export const authController = new AuthController();

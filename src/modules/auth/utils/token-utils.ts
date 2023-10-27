@@ -10,13 +10,13 @@ export class UtilsTokenAuth {
     const payload = userPayload;
     delete payload.password;
 
-    const accessToken = Jwt.sign({ payload }, '34i534i6624j543546grg', {
-      expiresIn: '15m',
+    const accessToken = Jwt.sign({ payload }, `${process.env.JWT_SECRET}`, {
+      expiresIn: `${process.env.JTW_EXPIRE_IN}`,
     });
 
     const refreshToken = Jwt.sign(
       { payload: { id: payload.id } },
-      '34i534i6624j543546grg',
+      `${process.env.JWT_REFRESH_TOKEN_SECRET}`,
     );
 
     return { accessToken, refreshToken };
