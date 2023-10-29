@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { StatusErrorsEnum } from '../../../enum/status.enum';
 import { prismaConnnect } from '../../../prismaConn';
 import { UtilsSendMail } from '../utils/send-mail.utils';
@@ -55,7 +56,39 @@ class ResetPasswordService {
     return { email, secret: findUser.reset_password_secret.secret };
   }
 
-  public async resetPassword() {}
+  public async resetPassword(
+    email: string,
+    secret: number,
+    newPassword: string,
+  ) {
+    const findUser = await prismaConnnect.user.findUnique({
+      where: { email },
+      include: { reset_password_secret: true },
+    });
+
+    if (
+      !findUser ||
+      !findUser.reset_password_secret ||
+      findUser.reset_password_secret.secret !== secret
+    ) {
+      throw new Error(StatusErrorsEnum.E404);
+    }
+
+    const update = await prismaConnnect.user.update({
+      where: { email },
+      data: { password: bcrypt.hashSync(newPassword, 6) },
+      select: {
+        name: true,
+        email: true,
+      },
+    });
+
+    await prismaConnnect.resetPasswordSecret.delete({
+      where: { userId: findUser.id },
+    });
+
+    return update;
+  }
 }
 
 export const resetPasswordService = new ResetPasswordService();

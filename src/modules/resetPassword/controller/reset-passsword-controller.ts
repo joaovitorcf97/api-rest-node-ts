@@ -66,7 +66,40 @@ class ResetPasswordController {
     }
   }
 
-  public async resetPassword(request: Request, response: Response) {}
+  public async resetPassword(request: Request, response: Response) {
+    const { email, secret, newPassword } = request.body;
+    try {
+      const ZUserSchema = z.object({
+        email: z.string().email({ message: `E-mail: ${ZodEnum.REQUIRED}` }),
+        secret: z.string().min(6, { message: `Segredo ${ZodEnum.REQUIRED}` }),
+        newPassword: z
+          .string()
+          .min(6, { message: `Nova senha ${ZodEnum.REQUIRED}` }),
+      });
+
+      ZUserSchema.parse({ email, secret, newPassword });
+    } catch (error: any) {
+      return response.status(400).json({
+        message: StatusErrorsEnum.E400,
+        error: error.errors,
+      });
+    }
+
+    try {
+      return response.json({
+        message: MessageEnum.READ,
+        data: await resetPasswordService.resetPassword(
+          email,
+          Number(secret),
+          newPassword,
+        ),
+      });
+    } catch (error: any) {
+      return response.status(404).json({
+        message: error.message,
+      });
+    }
+  }
 }
 
 export const resetPasswordController = new ResetPasswordController();
