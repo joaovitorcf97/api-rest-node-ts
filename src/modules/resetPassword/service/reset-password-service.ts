@@ -1,5 +1,6 @@
 import { StatusErrorsEnum } from '../../../enum/status.enum';
 import { prismaConnnect } from '../../../prismaConn';
+import { UtilsSendMail } from '../utils/send-mail.utils';
 
 class ResetPasswordService {
   public async validateUser(email: string) {
@@ -27,13 +28,32 @@ class ResetPasswordService {
         },
       });
 
+      UtilsSendMail.send(email, secret);
+
       return { email, secret };
     }
+
+    UtilsSendMail.send(email, findUser.reset_password_secret.secret);
 
     return { email, secret: findUser.reset_password_secret.secret };
   }
 
-  public async validateSecurityCode() {}
+  public async validateSecurityCode(email: string, secret: number) {
+    const findUser = await prismaConnnect.user.findUnique({
+      where: { email },
+      include: { reset_password_secret: true },
+    });
+
+    if (
+      !findUser ||
+      !findUser.reset_password_secret ||
+      findUser.reset_password_secret.secret !== secret
+    ) {
+      throw new Error(StatusErrorsEnum.E404);
+    }
+
+    return { email, secret: findUser.reset_password_secret.secret };
+  }
 
   public async resetPassword() {}
 }
