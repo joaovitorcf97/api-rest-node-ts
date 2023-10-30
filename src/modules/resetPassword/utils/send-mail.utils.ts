@@ -3,19 +3,19 @@ import nodemailer from 'nodemailer';
 export class UtilsSendMail {
   public static async send(email: string, secret: number) {
     const transporter = nodemailer.createTransport({
-      host: 'sandbox.smtp.mailtrap.io',
-      port: 2525,
+      host: process.env.MAIl_HOST,
+      port: process.env.MAIL_PORT,
       auth: {
-        user: '781d4a859fd3f8',
-        pass: '2a7ad02ec4b018',
+        user: process.env.MAIl_USER,
+        pass: process.env.MAIl_PASS,
       },
     });
 
     const mailOptions = {
-      from: 'sandbox.smtp.mailtrap.io',
+      from: process.env.MAIl_HOST,
       to: email,
       subjet: 'Resete sua senha',
-      text: `Código se segurança: ${secret}`,
+      text: `Código de segurança: ${secret}`,
     };
 
     await transporter.sendMail(mailOptions);
