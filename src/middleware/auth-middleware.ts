@@ -44,6 +44,8 @@ export class MiddlewareAuth {
       });
     }
 
+    request.tokenUserId = decoded.id;
+
     next();
   }
 }

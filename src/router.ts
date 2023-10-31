@@ -1,5 +1,11 @@
-import { authRouter } from './modules/auth/router';
-import { resetPasswordRouter } from './modules/resetPassword/router';
-import { userRouter } from './modules/user/router';
+import { authRouter } from './modules/Auth/router';
+import { resetPasswordRouter } from './modules/ResetPassword/router';
+import { userRouter } from './modules/User/router';
+import { userClientRouter } from './modules/UserClient/router';
 
-export const router = [authRouter, userRouter, resetPasswordRouter];
+export const router = [
+  authRouter,
+  userRouter,
+  resetPasswordRouter,
+  userClientRouter,
+];

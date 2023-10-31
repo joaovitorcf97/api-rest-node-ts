@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { prismaConnnect } from '../../../prismaConn';
-import { UtilsFileUser } from '../utils/file-utils';
+import { UtilsFileUser } from '../../../utils/file-utils';
 import { StatusErrorsEnum } from '../../../enum/status.enum';
 
 class UserService {
