@@ -1,3 +1,4 @@
+import { userClientFilesRouter } from './modules/UserClientFiles/router';
 import { authRouter } from './modules/Auth/router';
 import { resetPasswordRouter } from './modules/ResetPassword/router';
 import { userRouter } from './modules/User/router';
@@ -8,4 +9,5 @@ export const router = [
   userRouter,
   resetPasswordRouter,
   userClientRouter,
+  userClientFilesRouter,
 ];
