@@ -13,7 +13,7 @@ router.post(
   multer(middlewareUpload.getConfig()).single('file'),
   userClientFilesController.create,
 );
-router.get(`${baseURL}`, userClientFilesController.listAll);
+router.get(`${baseURL}/list/:year/:id`, userClientFilesController.listAll);
 router.get(`${baseURL}/:id`, userClientFilesController.read);
 router.patch(`${baseURL}/:id`, userClientFilesController.update);
 router.delete(`${baseURL}/:id`, userClientFilesController.delete);

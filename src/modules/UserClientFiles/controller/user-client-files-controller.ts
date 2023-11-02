@@ -70,13 +70,73 @@ class UserClientFilesController {
     }
   }
 
-  public async read(reqquest: Request, response: Response) {}
+  public async read(request: Request, response: Response) {
+    const paramsId = request.params.id;
+    const tokenUserId = request.tokenUserId;
 
-  public async listAll(reqquest: Request, response: Response) {}
+    try {
+      const ZClientFileSchema = z
+        .string()
+        .min(30, { message: `UC_ID: ${ZodEnum.REQUIRED}` });
 
-  public async update(reqquest: Request, response: Response) {}
+      ZClientFileSchema.parse(paramsId);
+    } catch (error: any) {
+      return response.status(400).json({
+        message: StatusErrorsEnum.E400,
+        error: error.errors,
+      });
+    }
 
-  public async delete(reqquest: Request, response: Response) {}
+    try {
+      return response.json({
+        message: MessageEnum.READ,
+        data: await userClientFilesService.read(paramsId, tokenUserId),
+      });
+    } catch (error: any) {
+      return response.status(404).json({
+        message: error.errors,
+      });
+    }
+  }
+
+  public async listAll(request: Request, response: Response) {
+    const paramsId = request.params.id;
+    const tokenUserId = request.tokenUserId;
+    const paramsYear = request.params.year;
+
+    try {
+      const ZClientFileSchema = z.object({
+        paramsId: z.string().min(30, { message: `UC_ID ${ZodEnum.REQUIRED}` }),
+        paramsYear: z.string().min(4, { message: `Data ${ZodEnum.REQUIRED}` }),
+      });
+
+      ZClientFileSchema.parse({ paramsId, paramsYear });
+    } catch (error: any) {
+      return response.status(400).json({
+        message: StatusErrorsEnum.E400,
+        error: error.errors,
+      });
+    }
+
+    try {
+      return response.json({
+        message: MessageEnum.READ,
+        data: await userClientFilesService.listAll(
+          paramsId,
+          paramsYear,
+          tokenUserId,
+        ),
+      });
+    } catch (error: any) {
+      return response.status(404).json({
+        message: error.errors,
+      });
+    }
+  }
+
+  public async update(request: Request, response: Response) {}
+
+  public async delete(request: Request, response: Response) {}
 }
 
 export const userClientFilesController = new UserClientFilesController();
