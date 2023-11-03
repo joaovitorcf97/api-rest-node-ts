@@ -1,4 +1,7 @@
+import path from 'node:path';
+import fs from 'node:fs';
 import moment from 'moment';
+import { UtilsFileUser } from '../../../utils/file-utils';
 import { StatusErrorsEnum } from '../../../enum/status.enum';
 import { prismaConnnect } from '../../../prismaConn';
 
@@ -72,9 +75,58 @@ class UserClientFilesService {
     return findAll;
   }
 
-  public async update() {}
+  public async update(
+    paramsId: string,
+    tokenUserId: string,
+    id: string,
+    name: string,
+    date: string,
+    description: string,
+    file: string,
+  ) {
+    const find = await prismaConnnect.userClintFiles.findFirst({
+      where: { id, userClientId: paramsId, userId: tokenUserId },
+    });
 
-  public async delete() {}
+    if (!find) {
+      throw new Error(StatusErrorsEnum.E404);
+    }
+
+    const update = await prismaConnnect.userClintFiles.update({
+      where: { id, userClientId: paramsId, userId: tokenUserId },
+      data: { name, date, description, file },
+    });
+
+    const fileURl = ['assets', 'files', tokenUserId, paramsId];
+
+    if (fs.existsSync(path.resolve(...fileURl))) {
+      fs.rmSync(path.resolve(...fileURl, find.file));
+    }
+
+    return update;
+  }
+
+  public async delete(paramsId: string, tokenUserId: string) {
+    const find = await prismaConnnect.userClintFiles.findFirst({
+      where: { id: paramsId, userId: tokenUserId },
+    });
+
+    if (!find) {
+      throw new Error(StatusErrorsEnum.E404);
+    }
+
+    const deleteUserFile = await prismaConnnect.userClintFiles.delete({
+      where: { id: paramsId, userId: tokenUserId },
+    });
+
+    UtilsFileUser.deleteFolderUser([
+      deleteUserFile.userId,
+      deleteUserFile.userClientId,
+      deleteUserFile.file,
+    ]);
+
+    return deleteUserFile;
+  }
 }
 
 export const userClientFilesService = new UserClientFilesService();

@@ -65,7 +65,7 @@ class UserClientFilesController {
       });
     } catch (error: any) {
       return response.status(404).json({
-        message: error.errors,
+        message: error.message,
       });
     }
   }
@@ -94,7 +94,7 @@ class UserClientFilesController {
       });
     } catch (error: any) {
       return response.status(404).json({
-        message: error.errors,
+        message: error.message,
       });
     }
   }
@@ -129,14 +129,102 @@ class UserClientFilesController {
       });
     } catch (error: any) {
       return response.status(404).json({
-        message: error.errors,
+        message: error.message,
       });
     }
   }
 
-  public async update(request: Request, response: Response) {}
+  public async update(request: Request, response: Response) {
+    const paramsId = request.params.id;
+    const tokenUserId = request.tokenUserId;
 
-  public async delete(request: Request, response: Response) {}
+    const { id, name, date, description } = request.body;
+    const file = request.file;
+
+    if (!file) {
+      return response.status(400).json({
+        message: StatusErrorsEnum.E400,
+      });
+    }
+
+    try {
+      const conditions = ['png', 'jpg', 'jpeg'];
+      const fileType = mime.getType(file.originalname);
+
+      const ZClientFileSchema = z.object({
+        paramsId: z.string().min(30, { message: `UC_ID: ${ZodEnum.REQUIRED}` }),
+        id: z.string().min(30, { message: `UCF_ID: ${ZodEnum.REQUIRED}` }),
+        name: z.string().min(1, { message: `Nome ${ZodEnum.REQUIRED}` }),
+        date: z.string().datetime({ message: `Nome ${ZodEnum.REQUIRED}` }),
+        file: z
+          .any()
+          .refine(() => conditions.some((ext) => fileType?.includes(ext)), {
+            message: `Upload aceita apenas: ${conditions}`,
+          }),
+      });
+
+      ZClientFileSchema.parse({ paramsId, id, name, date, file });
+    } catch (error: any) {
+      const fileURl = ['assets', 'files', tokenUserId, paramsId];
+
+      if (fs.existsSync(path.resolve(...fileURl))) {
+        fs.rmSync(path.resolve(...fileURl, file.filename));
+      }
+
+      return response.status(400).json({
+        message: StatusErrorsEnum.E400,
+        error: error.errors,
+      });
+    }
+
+    try {
+      return response.json({
+        message: MessageEnum.UPDATE,
+        data: await userClientFilesService.update(
+          paramsId,
+          tokenUserId,
+          id,
+          name,
+          date,
+          description,
+          file.filename,
+        ),
+      });
+    } catch (error: any) {
+      return response.status(404).json({
+        message: error.message,
+      });
+    }
+  }
+
+  public async delete(request: Request, response: Response) {
+    const paramsId = request.params.id;
+    const tokenUserId = request.tokenUserId;
+
+    try {
+      const ZClientFileSchema = z
+        .string()
+        .min(30, { message: `UC_ID: ${ZodEnum.REQUIRED}` });
+
+      ZClientFileSchema.parse(paramsId);
+    } catch (error: any) {
+      return response.status(400).json({
+        message: StatusErrorsEnum.E400,
+        error: error.errors,
+      });
+    }
+
+    try {
+      await userClientFilesService.delete(paramsId, tokenUserId);
+      return response.json({
+        message: MessageEnum.DELETE,
+      });
+    } catch (error: any) {
+      return response.status(404).json({
+        message: error.message,
+      });
+    }
+  }
 }
 
 export const userClientFilesController = new UserClientFilesController();
